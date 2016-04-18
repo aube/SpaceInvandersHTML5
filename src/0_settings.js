@@ -1,5 +1,13 @@
 'use strict';
 
+/*Настройки игры
+Значение некоторых параметров пересчитываются в зависимости от типа данных:
+- Integer (кол-во пикселей),
+- Float (в процентах от ширины для X и высоты для Y экрана)
+- Array {x:[min,max],y:[min,max]} - rand(min,max)
+при этом min и max так же могут быть Integer и Float
+*/
+
 var Settings = Object.create(null);
 
 //Player
@@ -29,7 +37,8 @@ Settings.star = {
 	,limit:50
 }
 
-//Armada (cетка для объектов enemy)
+
+//Armada - cетка для объектов enemy
 Settings.armada = {
 	inrow:7
 	,rows:3
@@ -39,6 +48,9 @@ Settings.armada = {
 }
 
 //Enemies
+//если заполнен параметр wave и скорость объектов
+//различается (при указании min и max), объекты ломают строй
+//и начинают перемещаться хаотично
 Settings.enemy = {
 	horisontalMargin:.4
 	,verticalMargin:.6

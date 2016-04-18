@@ -1,29 +1,41 @@
 
-var SpaceInvandersHTML5 = function(canvas)
+var SpaceInvandersHTML5 = function(width, height)
 {
-	
-
+	var self = this;
+		
+	this.level = 0;
+	this.gameOver = false;
 	
 	//loop parameters
 	var lastTime = Date.now();
-	var lastFpsUpdateTime = Date.now();
 	var now = Date.now();
 	var dt = (now - lastTime) / 1000.0;
 	
+	//fps
+	var lastFpsUpdateTime = Date.now();
 	var fpsEl = document.getElementById('fps');
 	var fps = 0;
 	
-	//collections {star:[],enemy:[],...}
-	var self = this;
-	
+	//Коллекция для объектов {star:[],enemy:[],...}
 	this.Objects = Object.create(null);
-	this.sounds = Object.create(null);
-	
-	this.level = 0;
-	this.gameOver = false;
-	this.pause = false;
 	
 	
+	//добавление объекта в коллекцию
+	this.registerObject = function(Entity)
+	{
+		
+		if (undefined == this.Objects[Entity.type])
+			self.Objects[Entity.type] = [];
+		
+		self.Objects[Entity.type].push(Entity);
+		
+		if (typeof Settings[Entity.type].sound == 'object')
+			Settings[Entity.type].sound.play();
+		
+	}
+	
+	
+	//проверка параметров игры
 	this.gameStates = function()
 	{
 		
@@ -31,7 +43,6 @@ var SpaceInvandersHTML5 = function(canvas)
 			lastFpsUpdateTime = now;
 			fpsEl.innerHTML = fps.toFixed(0) + 'fps';
 		}
-		
 		
 		//all enemies destroed, new level begin
 		if (self.Objects['enemy'].length == 0)
@@ -49,6 +60,23 @@ var SpaceInvandersHTML5 = function(canvas)
 	}
 	
 	
+	//основной цикл
+	this.loop = function()
+	{
+		now = Date.now();
+		dt = (now - lastTime) / 1000.0;
+		fps = 1000 / (now - lastTime);
+		lastTime = now;
+		
+		self.gameStates();
+		self.update(dt);
+		
+		requestAnimationFrame(self.loop);
+	}
+	
+	
+	
+	//начало игры и переход на следующий уровень
 	this.startNewLevel = function()
 	{
 		self.level++;
@@ -75,6 +103,7 @@ var SpaceInvandersHTML5 = function(canvas)
 	}
 	
 	
+	//отображение надписи Game Over
 	this.onGameOver = function()
 	{
 		var el = document.getElementById('gameOver');
@@ -83,28 +112,14 @@ var SpaceInvandersHTML5 = function(canvas)
 	}
 	
 	
-	this.loop = function()
-	{
-		now = Date.now();
-		dt = (now - lastTime) / 1000.0;
-		fps = 1000 / (now - lastTime);
-		lastTime = now;
-		
-		self.gameStates();
-		self.update(dt);
-		
-		if (!self.pause)
-			requestAnimationFrame(self.loop);
-	}
-	
-
-	
+	//обновление координат объектов
 	this.update = function(dt)
 	{
 		//each update generate new star
+		//звёзды создаются рандомно по оси Х
+		//и летят по оси Y с разной скоростью
 		if (self.Objects.star.length < Settings.star.limit)
 			self.registerObject(new Star());
-		
 		
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
 		
@@ -115,8 +130,6 @@ var SpaceInvandersHTML5 = function(canvas)
 			{
 				if (!entType[n].update(dt))
 				{
-					//entType[n].onDestroy();
-					//entType[n].onDestroy();
 					entType.splice(n--,1);
 				}
 			}
@@ -124,9 +137,11 @@ var SpaceInvandersHTML5 = function(canvas)
 	}
 	
 	
+	//начало игры, установка основных параметров
+	//создание корабля игрока
+	//запуск цикла
 	this.start = function()
 	{
-		
 		
 		self.gameOver = false;
 		self.pause = false;
@@ -137,6 +152,8 @@ var SpaceInvandersHTML5 = function(canvas)
 		
 		self.Objects = Object.create(null);
 		
+		//создаём звезду, чтобы параметр star был первым в коллекции объектов
+		//и отрисовывались под остальными объектами
 		self.registerObject(new Star());
 		
 		//create player ship
@@ -147,12 +164,11 @@ var SpaceInvandersHTML5 = function(canvas)
 		
 		self.loop();
 		
-		
-		
 	}
 	
 	
-	
+	//создание вражеских кораблей по координатам,
+	//указанным в сетке координат Settings.armada
 	this.generateEnemies = function(Entity)
 	{
 		for (var r = 0; r < Settings.armada.rows; r++)
@@ -167,33 +183,9 @@ var SpaceInvandersHTML5 = function(canvas)
 	}
 	
 	
-	this.registerObject = function(Entity)
-	{
-		
-		if (undefined == this.Objects[Entity.type])
-			self.Objects[Entity.type] = [];
-		
-		self.Objects[Entity.type].push(Entity);
-		
-		if (typeof Settings[Entity.type].sound == 'object')
-			Settings[Entity.type].sound.play();
-		
-	}
-	
-	
-	
-	this.pauseToggle = function()
-	{
-		self.pause = !self.pause;
-		var el = document.getElementById('pause');
-		el.style.display = self.pause?'block':'none';
-		
-	}
-	
-	
-	
-	
-	
+	//инициализация, дополнительный рассчет параметров
+	//загрузка очереди звуков
+	//привязка событий
 	this.init = function()
 	{
 		//player
@@ -245,7 +237,6 @@ var SpaceInvandersHTML5 = function(canvas)
 		
 	}
 	
-
 };
 
 

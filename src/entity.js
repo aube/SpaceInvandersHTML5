@@ -1,7 +1,24 @@
-//prototipe for all objects in game
+//прототип для всех объектов в игре
 
 var Entity = {
 	
+	/*
+	 * Дополнительные параметры поведения объектов
+	 * 
+	destroyOnOutOfScreen - уничтожение объекта при выходе за границу экрана (true/false)
+	cantOutOfScreen - запрет выхода за пределы экрана (true/false)
+	destroyOnEndAnimation - уничтожение объекта по завершении анимации (true/false)
+	targets - уничтожение при столкновении (тип объекта),
+	*/
+	
+	destroyOnOutOfScreen:false,
+	cantOutOfScreen:false,
+	destroyOnEndAnimation:false,
+	targets:false,
+	
+	
+	//пересчет координат,
+	//вызов методов для контроля столкновений и выхода за границу экрана
 	update:function(dt)
 	{
 		
@@ -55,6 +72,7 @@ var Entity = {
 		return true;
 	}
 	
+	//рассчет волнообразного движения объекта (применяется в enemy)
 	,waveCalculate: function()
 	{
 		
@@ -70,10 +88,11 @@ var Entity = {
 		
 	}
 	
+	//проверка столкновения с указанным в настройках типом объекта
 	,checkCollision: function()
 	{
 		
-		if (typeof this.targets !== 'undefined')
+		if (this.targets)
 		{
 			var targets = Game.Objects[this.targets];
 			for(var n=0; n < targets.length; n++)
@@ -94,12 +113,16 @@ var Entity = {
 	}
 	
 	
+	//столкновение
+	//создание взрыва
 	,onCollision: function()
 	{
 		Game.registerObject(new Explosion(this.pos.x,this.pos.y, this.width,this.height));
 		
 	}
 	
+	//проверка выхода за границы экрана
+	//уничтожение объекта "star" или запрет выхода "player"
 	,checkOutOfScreen: function()
 	{
 		if (this.destroyOnOutOfScreen)
@@ -129,6 +152,9 @@ var Entity = {
 		return true;
 	}
 	
+	//отрисовка объекта
+	//drawImage если указан спрайт
+	//fillRect в остальных случаях
 	,draw: function(){
 		ctx.save();
 		
