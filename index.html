@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ru">
+	
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no">
+
+		<title>si</title>
+		<link rel="stylesheet" type="text/css" href="/css/si.css"/>
+	</head>
+
+	<body>
+		
+		<canvas id='game'></canvas>
+		<div id='level'></div>
+		<div id='gameOver'>
+			<h2>Game Over</h2>
+			<a href='#'>new game</a>
+		</div>
+		<div id='fps'></div>
+		
+		<script src='/js/si.js'></script>
+		
+		<script>
+			
+			var canvas = document.getElementById("game");
+			var ctx = canvas.getContext("2d");
+			
+			//небольшая корректировка размеров холста
+			canvas.width = canvas.offsetWidth;
+			canvas.height =  canvas.offsetHeight;
+			//canvas.width = Math.min(canvas.width, canvas.height);
+			canvas.style.width = canvas.width+'px';
+			canvas.style.height =  canvas.height+'px';
+			
+			
+			//sprites
+			var spritesImage = new Image();
+			spritesImage.src = 'sprites.png';
+			
+			
+			var Game = new SpaceInvandersHTML5(canvas);
+			Game.init();
+		</script>
+		
+	</body>
+
+</html>
