@@ -56,10 +56,8 @@ var Entity = {
 		if (typeof this.sprite == 'object')
 		{
 			if (this.sprite.len > 1)
-			{
 				this.frame++;
-				//console.log(this.frame);
-			}
+			
 			if (this.frame >= this.sprite.len)
 				if (this.destroyOnEndAnimation)
 					return false;
@@ -76,37 +74,50 @@ var Entity = {
 	,waveCalculate: function()
 	{
 		
-		var offsetX = this.pos0.x - this.pos.x;
-		var offsetY = this.pos0.y - this.pos.y;
+		var offsetX = (Math.round((Math.random()) * 10) % 2 == 0 ? -1 : 1);
+		var offsetY = (Math.round((Math.random()) * 10) % 2 == 0 ? -1 : 1);
 		
 		
 		if (this.wave.x && this.moveto.x === false)
-			this.moveto.x = (offsetX >= 0 ? 1:-1) * this.wave.x + this.pos0.x;
+			this.moveto.x = offsetX * this.wave.x + this.pos0.x;
 		
 		if (this.wave.y && this.moveto.y === false)
-			this.moveto.y = (offsetY >= 0 ? 1:-1) * this.wave.y + this.pos0.y;
+			this.moveto.y = offsetY * this.wave.y + this.pos0.y;
 		
 	}
 	
 	//проверка столкновения с указанным в настройках типом объекта
-	,checkCollision: function()
+	,checkCollision: function(targetName)
 	{
-		
-		if (this.targets)
+		targetName = targetName || this.targets;
+
+		if (targetName)
 		{
-			var targets = Game.Objects[this.targets];
-			for(var n=0; n < targets.length; n++)
-			{
-				if (!(this.pos.x+this.width <= targets[n].pos.x
-					|| this.pos.x > targets[n].pos.x+targets[n].width
-					|| this.pos.y+this.height <= targets[n].pos.y
-					|| this.pos.y > targets[n].pos.y+targets[n].height))
-				{
-					targets[n].onCollision();
-					targets.splice(n,1);
-					return false;
-				}
+			if (targetName instanceof Array) {
+				var n = 0;
+				var result = true;
+				while(targetName[n])
+					result *= this.checkCollision(targetName[n++]);
+				return result;
 			}
+			var targets = Game.Objects[targetName];
+			if (targets && targets.length)
+				for(var n=0; n < targets.length; n++)
+				{
+					if (!(this.pos.x+this.width <= targets[n].pos.x
+						|| this.pos.x > targets[n].pos.x+targets[n].width
+						|| this.pos.y+this.height <= targets[n].pos.y
+						|| this.pos.y > targets[n].pos.y+targets[n].height))
+					{
+						if (targets[n].power <= this.power) {
+							targets[n].onDestroy();
+							targets.splice(n,1);
+						} else {
+							targets[n].power -= this.power;
+						}
+						return false;
+					}
+				}
 		}
 		
 		return true;
@@ -115,7 +126,7 @@ var Entity = {
 	
 	//столкновение
 	//создание взрыва
-	,onCollision: function()
+	,onDestroy: function()
 	{
 		Game.registerObject(new Explosion(this.pos.x,this.pos.y, this.width,this.height));
 		
@@ -161,15 +172,15 @@ var Entity = {
 		if (typeof this.sprite == 'object')
 		{
 			ctx.drawImage(spritesImage,
-						this.sprite.width * this.frame,
-						this.sprite.top,
-						this.sprite.width, this.sprite.height,
-						this.pos.x,this.pos.y,this.width,this.height)
+				this.sprite.width * this.frame,
+				this.sprite.top,
+				this.sprite.width, this.sprite.height,
+				this.pos.x, this.pos.y, this.width, this.height);
 		}
 		else
 		{
 			ctx.fillStyle = this.color;
-			ctx.fillRect(this.pos.x,this.pos.y,this.width,this.height);
+			ctx.fillRect(this.pos.x, this.pos.y, this.width, this.height);
 		}
 		ctx.restore();
 	}
@@ -177,17 +188,17 @@ var Entity = {
 	//получение числовых параметров из настроек
 	,getXY: function(paramName){
 		
-		var x,y;
+		var x, y;
 		var param = Settings[this.type][paramName];
 		
 		function getX(x)
 		{
-			return (''+x).indexOf('.')<0 ? 1*x : canvas.width * x;
+			return (''+x).indexOf('.') < 0 ? +x : canvas.width * x;
 		}
 		
 		function getY(y)
 		{
-			return (''+y).indexOf('.')<0 ? 1*y : canvas.height * y;
+			return (''+y).indexOf('.') < 0 ? +y : canvas.height * y;
 		}
 		
 		if (typeof param.x === 'object')

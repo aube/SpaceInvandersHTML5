@@ -1,5 +1,5 @@
 
-function Bullet(x,y,targets)
+function Bullet(x, y, targets)
 {
 	
 	this.type = 'bullet';
@@ -21,7 +21,8 @@ function Bullet(x,y,targets)
 	this.speed = this.getXY('speed');
 	
 	this.color = Settings.bullet.color;
-	
+	this.power = Settings.bullet.power;
+
 	this.draw();
 	
 	

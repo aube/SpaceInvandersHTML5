@@ -15,7 +15,6 @@ function Enemy(x,y)
 	
 	this.speed = this.getXY('speed');
 	this.wave = this.getXY('wave');
-	console.log(this.wave);
 	
 	//this.wave = {
 	//	x:Settings.armada.width * this.wave.x * canvas.width,
@@ -28,7 +27,8 @@ function Enemy(x,y)
 	this.color = Settings.enemy.color;
 	this.sprite = Settings.enemy.sprite;
 	this.frame = 0;
-	
+	this.power = Settings.enemy.power;
+
 	this.draw();
 	
 	this.getPosition = function()

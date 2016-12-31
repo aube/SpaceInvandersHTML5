@@ -22,6 +22,7 @@ function Player()
 	this.color = Settings.player.color;
 	this.sprite = Settings.player.sprite;
 	this.frame = 0;
+	this.power = Settings.player.power;
 	
 	this.draw();
 	
